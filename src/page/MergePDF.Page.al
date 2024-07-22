@@ -1,36 +1,32 @@
 page 50148 MergePDF
 {
-
-    Caption = 'MergePDF';
+    Caption = 'Merge PDF';
     PageType = Card;
+    ApplicationArea = All;
+    UsageCategory = Administration;
 
     layout
     {
         area(content)
         {
-            group(General)
+            usercontrol(pdf; PDF)
             {
-                usercontrol(pdf; PDF)
-                {
-                    ApplicationArea = all;
-
-                    trigger DownloadPDF(pdfToNav: text)
-                    var
-                        TempBlob: Codeunit "Temp Blob";
-                        Convert64: Codeunit "Base64 Convert";
-                        Ins: InStream;
-                        Outs: OutStream;
-                        Filename: Text;
-                    begin
-                        if pdfToNav <> '' then begin
-                            Filename := 'Test.pdf';
-                            TempBlob.CreateInStream(Ins);
-                            TempBlob.CreateOutStream(Outs);
-                            Convert64.FromBase64(pdfToNav, Outs);
-                            DownloadFromStream(Ins, 'Download', '', '', Filename);
-                        end;
+                trigger DownloadPDF(pdfToNav: text)
+                var
+                    TempBlob: Codeunit "Temp Blob";
+                    Convert64: Codeunit "Base64 Convert";
+                    Ins: InStream;
+                    Outs: OutStream;
+                    Filename: Text;
+                begin
+                    if pdfToNav <> '' then begin
+                        Filename := 'Test.pdf';
+                        TempBlob.CreateInStream(Ins);
+                        TempBlob.CreateOutStream(Outs);
+                        Convert64.FromBase64(pdfToNav, Outs);
+                        DownloadFromStream(Ins, 'Download', '', '', Filename);
                     end;
-                }
+                end;
             }
         }
     }
@@ -41,7 +37,6 @@ page 50148 MergePDF
         {
             action(SalesOrder)
             {
-                ApplicationArea = All;
                 Caption = 'Add Sales Order';
                 Image = Order;
                 trigger OnAction()
@@ -60,7 +55,6 @@ page 50148 MergePDF
             }
             action(SalesInvoice)
             {
-                ApplicationArea = All;
                 Caption = 'Add Posted Sales Invoice';
                 Image = Order;
                 trigger OnAction()
@@ -77,7 +71,6 @@ page 50148 MergePDF
             }
             action(Merge)
             {
-                ApplicationArea = All;
                 Caption = 'Merge documents';
                 Image = Print;
                 trigger OnAction()
@@ -87,9 +80,32 @@ page 50148 MergePDF
                     CurrPage.pdf.MergePDF(format(MergePDF.GetJArray()));
                 end;
             }
+            action(MergeService)
+            {
+                Caption = 'Merge Service';
+                ToolTip = 'Merge PDF on Azure Function';
+                Image = Print;
+                trigger OnAction()
+                var
+                    TempBlob: Codeunit "Temp Blob";
+                    Convert64: Codeunit "Base64 Convert";
+                    Ins: InStream;
+                    Outs: OutStream;
+                    Filename: Text;
+                    pdfToNav: Text;
+                begin
+                    pdfToNav := format(MergePDF.CallService());
+                    if pdfToNav <> '' then begin
+                        Filename := 'Test.pdf';
+                        TempBlob.CreateInStream(Ins);
+                        TempBlob.CreateOutStream(Outs);
+                        Convert64.FromBase64(pdfToNav, Outs);
+                        DownloadFromStream(Ins, 'Download', '', '', Filename);
+                    end;
+                end;
+            }
             action(Clear)
             {
-                ApplicationArea = All;
                 Caption = 'Clear documents';
                 Image = Delete;
                 trigger OnAction()
